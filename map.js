@@ -192,12 +192,12 @@ function removeDeadvehicles() {
 
     var sum = 0;
     for (j = 0; j < speeds.length; j++) {
-        sum += Number(speeds[j]);
+        var speed = Number(speeds[j]);
+        sum += speed;
+        max = speed > max ? speed : max;
+        min = speed < min ? speed : min;
     }
     sum = sum /speeds.length;
-    max = sum > max ? Math.floor(sum) : max;
-    min = sum < min ? Math.floor(sum) : min;
-
     // Set temp to real list
     markers = tempMarkers;
     // Update how many trains we have on the map
@@ -213,7 +213,7 @@ function removeDeadvehicles() {
     document.getElementById("current_trains").innerHTML = "<b>"+ y + " vehicles on map</b>" + stats;
     document.getElementById("current_speed").innerHTML = 
         "<b>Average speed: "  + Math.floor(sum) + " MPH</b> (" + speeds.length + " vehicles reporting)<br>"
-        + "Session max: " + max + ", session min: " + min;
+        + "Max: " + max + ", min: " + min;
 
 
 

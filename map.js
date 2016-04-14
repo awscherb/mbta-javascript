@@ -35,8 +35,13 @@ var predictionsByStop = [
 ];
 
 var myMarker;
+var dtx;
 
 run();
+
+google.maps.Circle.prototype.contains = function(latLng) {
+  return this.getBounds().contains(latLng) && google.maps.geometry.spherical.computeDistanceBetween(this.getCenter(), latLng) <= this.getRadius();
+}
 
 /* Initialize hte map */
 function initialize() {
@@ -57,6 +62,18 @@ function initialize() {
     transitLayer.setMap(map);   
 
     map.setOptions({styles: styles});
+
+    dtx = new google.maps.Circle({
+      strokeColor: '#FF0000',
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: '#FF0000',
+      fillOpacity: 0.35,
+      map: map,
+      center: {lat: 42.355475, lng: -71.060529},
+      radius: 50
+    });
+
 }
 
 /* Refresh the map */
@@ -118,7 +135,10 @@ function drawVehicles() {
                         var routeName = routes[i].route_name;
                         var lat = vehicle.vehicle_lat;           
                         var lon = vehicle.vehicle_lon;  
-                        var rotation = vehicle.vehicle_bearing;  
+                        var rotation = vehicle.vehicle_bearing; 
+
+			//if (routeName != "Red Line")
+			//	continue; 
 
                         if (vehicle.hasOwnProperty("vehicle_speed")) {
                             headsign += ", " + vehicle.vehicle_speed + " MPH";
@@ -131,7 +151,6 @@ function drawVehicles() {
                             vehiclesPerLine[routeName] = 1;
 
                         newMarkers.push(id); // Add this to our list of current trains
-                        var marker;
                         var icon = {
                                     path: shape,
                                     scale: size,
@@ -141,43 +160,39 @@ function drawVehicles() {
                                     rotation: Number(rotation)};
 
                         if (id in markers) {
-                            marker = markers[id];
+                            var marker = markers[id];
                             marker.setPosition(new google.maps.LatLng(Number(lat), Number(lon)));
                             marker.setIcon(icon);
-
+			    if (dtx.contains(marker.position)) {
+			      console.log("DTX");
+			    }
                         } else {
-                            var markerOptions = {
-                                    position: {lat:Number(lat), lng:Number(lon)},
-                                    map: map,
-                                    labelClass: "labels",
-                                    title: routeName + " to "+ headsign,
-                                    icon: icon
-                                }
-                                 
-                            if (vehicle.hasOwnProperty("vehicle_speed")) 
-                                markerOptions.labelContent = vehicle.vehicle_speed + " MPH";
-
-                            marker = new google.maps.Marker(markerOptions);
+                            markers[id] = new google.maps.Marker({
+				 position: {lat:Number(lat), lng:Number(lon)},
+                                 map: map,
+                                 labelClass: "labels",
+                                 title: routeName + " to "+ headsign,
+                                 icon: icon
+  			    });
                            
-                            google.maps.event.addListener(marker, 'click', function() {
+                           /* google.maps.event.addListener(markers[id], 'click', function() {
                                 var title = this.getTitle();
                                 var parts = title.split(" ");
                                 infowindow.setContent(title);
                                 infowindow.open(map, this);
                                 console.log("Clicked title: " + title);
-                            });
-                            markers[id] = marker;
+                            });*/
                         }
                     }
                 }
             }
         }
-        removeDeadvehicles(); 
+        removeDeadVehicles(); 
     }
 } // End drawVehicles()
 
 /* Remove trains which are no longer in service from the map */
-function removeDeadvehicles() {
+function removeDeadVehicles() {
     var tempMarkers = {}; // Marker objects representing alive trains on the map
 
     for (i = 0; i < newMarkers.length; i++) {
@@ -211,11 +226,6 @@ function removeDeadvehicles() {
 
 
     document.getElementById("current_trains").innerHTML = "<b>"+ y + " vehicles on map</b>" + stats;
-    document.getElementById("current_speed").innerHTML = 
-        "<b>Average speed: "  + Math.floor(sum) + " MPH</b> (" + speeds.length + " vehicles reporting)<br>"
-        + "Max: " + max + ", min: " + min;
-
-
 
     // Reset these
     newMarkers = []; 

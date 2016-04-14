@@ -83,12 +83,11 @@
       <div id="number_of_trains_panel">
         <div id="current_trains">Trains</div>
       </div>
-
       <div id="speed_panel">
       <center>
         <div id="current_speed">Current Speed</div>
       </center>
-    </div>
+      </div>
     </div>
     </div>
 

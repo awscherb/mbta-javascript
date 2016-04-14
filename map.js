@@ -3,7 +3,7 @@ var map;
 /* Ten second refresh reate */
 var refreshRate = 10000;
 /* Map marker shape */
-var shape = google.maps.SymbolPath.FORWARD_CLOSED_ARROW ;
+var shape = google.maps.SymbolPath.FORWARD_CLOSED_ARROW;
 /* Marker size */
 var size = 4;
 /* Initialie the map */
@@ -22,7 +22,7 @@ var max = 0;
 var min = Number.MAX_VALUE;
 
 
-var infowindow = new google.maps.InfoWindow(); 
+var infowindow = new google.maps.InfoWindow();
 /* Route predictions parts */
 var predictions = [
     "http://realtime.mbta.com/developer/api/v2/predictionsbyroute?api_key=wX9NwuHnZU2ToO7GmGR9uw&route=",
@@ -40,12 +40,12 @@ var dtx;
 run();
 
 google.maps.Circle.prototype.contains = function(latLng) {
-  return this.getBounds().contains(latLng) && google.maps.geometry.spherical.computeDistanceBetween(this.getCenter(), latLng) <= this.getRadius();
+    return this.getBounds().contains(latLng) && google.maps.geometry.spherical.computeDistanceBetween(this.getCenter(), latLng) <= this.getRadius();
 }
 
 /* Initialize hte map */
 function initialize() {
-    
+
     var mapOptions = {
         zoom: 13,
         center: new google.maps.LatLng(42.343831, -71.069173),
@@ -56,22 +56,27 @@ function initialize() {
     };
 
     map = new google.maps.Map(document.getElementById('map-canvas'),
-      mapOptions);
-    
-    var transitLayer = new google.maps.TransitLayer();
-    transitLayer.setMap(map);   
+        mapOptions);
 
-    map.setOptions({styles: styles});
+    var transitLayer = new google.maps.TransitLayer();
+    transitLayer.setMap(map);
+
+    map.setOptions({
+        styles: styles
+    });
 
     dtx = new google.maps.Circle({
-      strokeColor: '#FF0000',
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      fillColor: '#FF0000',
-      fillOpacity: 0.35,
-      map: map,
-      center: {lat: 42.355475, lng: -71.060529},
-      radius: 50
+        strokeColor: '#FF0000',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: '#FF0000',
+        fillOpacity: 0.35,
+        map: map,
+        center: {
+            lat: 42.355475,
+            lng: -71.060529
+        },
+        radius: 50
     });
 
 }
@@ -89,17 +94,17 @@ function run() {
 /* Draw the vehicles on the map */
 function drawVehicles() {
     var xmlhttp = new XMLHttpRequest();
-    var url = "http://realtime.mbta.com/developer/api/v2/vehiclesbyroutes"
-    +"?api_key=wX9NwuHnZU2ToO7GmGR9uw&routes=Red,Orange,Blue,Green-B,"
-    +"Green-C,Green-D,Green-E,CR-Providence,CR-Newburyport,CR-Needham,"
-    +"CR-Middleborough,CR-Lowell,CR-Kingston,CR-Haverhill,CR-Greenbush,"
-    +"CR-Franklin,CR-Worcester,CR-Fitchburg,CR-Fairmount&format=json";
-    
+    var url = "http://realtime.mbta.com/developer/api/v2/vehiclesbyroutes" +
+        "?api_key=wX9NwuHnZU2ToO7GmGR9uw&routes=Red,Orange,Blue,Green-B," +
+        "Green-C,Green-D,Green-E,CR-Providence,CR-Newburyport,CR-Needham," +
+        "CR-Middleborough,CR-Lowell,CR-Kingston,CR-Haverhill,CR-Greenbush," +
+        "CR-Franklin,CR-Worcester,CR-Fitchburg,CR-Fairmount&format=json";
+
     /*
         Silver - 741,742,749,751
     */
-    
-    xmlhttp.onreadystatechange=function() {
+
+    xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
             myFunction(xmlhttp.responseText);
         }
@@ -111,34 +116,34 @@ function drawVehicles() {
         var arr = JSON.parse(response);
         var modes = arr.mode;
         var totalMarkers = 0;
-        
+
         for (m = 0; m < modes.length; m++) {
-            var routes = arr.mode[m].route;  
+            var routes = arr.mode[m].route;
             var routeType = modes[m].route_type;
 
             for (i = 0; i < routes.length; i++) {
                 var directions = routes[i].direction;
-                var color = (Number(routeType) == 2) 
-                                ? "Purple"
-                                : (Number(routeType) == 3) 
-                                    ? "Gray"
-                                    : routes[i].route_name.split(" ")[0];
-                
+                var color = (Number(routeType) == 2) ?
+                    "Purple" :
+                    (Number(routeType) == 3) ?
+                    "Gray" :
+                    routes[i].route_name.split(" ")[0];
+
                 for (j = 0; j < directions.length; j++) {
                     var trips = directions[j].trip;
-                    
+
                     for (k = 0; k < trips.length; k++) {
                         var vehicle = trips[k].vehicle;
                         var tripName = trips[k].trip_name;
-                        var id = vehicle.vehicle_id + tripName; 
+                        var id = vehicle.vehicle_id + tripName;
                         var headsign = trips[k].trip_headsign;
                         var routeName = routes[i].route_name;
-                        var lat = vehicle.vehicle_lat;           
-                        var lon = vehicle.vehicle_lon;  
-                        var rotation = vehicle.vehicle_bearing; 
+                        var lat = vehicle.vehicle_lat;
+                        var lon = vehicle.vehicle_lon;
+                        var rotation = vehicle.vehicle_bearing;
 
-			//if (routeName != "Red Line")
-			//	continue; 
+                        //if (routeName != "Red Line")
+                        //  continue; 
 
                         if (vehicle.hasOwnProperty("vehicle_speed")) {
                             headsign += ", " + vehicle.vehicle_speed + " MPH";
@@ -152,42 +157,46 @@ function drawVehicles() {
 
                         newMarkers.push(id); // Add this to our list of current trains
                         var icon = {
-                                    path: shape,
-                                    scale: size,
-                                    fillColor: color,
-                                    fillOpacity: 1,
-                                    strokeWeight: 1,
-                                    rotation: Number(rotation)};
+                            path: shape,
+                            scale: size,
+                            fillColor: color,
+                            fillOpacity: 1,
+                            strokeWeight: 1,
+                            rotation: Number(rotation)
+                        };
 
                         if (id in markers) {
                             var marker = markers[id];
                             marker.setPosition(new google.maps.LatLng(Number(lat), Number(lon)));
                             marker.setIcon(icon);
-			    if (dtx.contains(marker.position)) {
-			      console.log("DTX");
-			    }
+                            if (dtx.contains(marker.position)) {
+                                console.log("DTX");
+                            }
                         } else {
                             markers[id] = new google.maps.Marker({
-				 position: {lat:Number(lat), lng:Number(lon)},
-                                 map: map,
-                                 labelClass: "labels",
-                                 title: routeName + " to "+ headsign,
-                                 icon: icon
-  			    });
-                           
-                           /* google.maps.event.addListener(markers[id], 'click', function() {
-                                var title = this.getTitle();
-                                var parts = title.split(" ");
-                                infowindow.setContent(title);
-                                infowindow.open(map, this);
-                                console.log("Clicked title: " + title);
-                            });*/
+                                position: {
+                                    lat: Number(lat),
+                                    lng: Number(lon)
+                                },
+                                map: map,
+                                labelClass: "labels",
+                                title: routeName + " to " + headsign,
+                                icon: icon
+                            });
+
+                            /* google.maps.event.addListener(markers[id], 'click', function() {
+                                 var title = this.getTitle();
+                                 var parts = title.split(" ");
+                                 infowindow.setContent(title);
+                                 infowindow.open(map, this);
+                                 console.log("Clicked title: " + title);
+                             });*/
                         }
                     }
                 }
             }
         }
-        removeDeadVehicles(); 
+        removeDeadVehicles();
     }
 } // End drawVehicles()
 
@@ -212,7 +221,7 @@ function removeDeadVehicles() {
         max = speed > max ? speed : max;
         min = speed < min ? speed : min;
     }
-    sum = sum /speeds.length;
+    sum = sum / speeds.length;
     // Set temp to real list
     markers = tempMarkers;
     // Update how many trains we have on the map
@@ -225,94 +234,70 @@ function removeDeadVehicles() {
     }
 
 
-    document.getElementById("current_trains").innerHTML = "<b>"+ y + " vehicles on map</b>" + stats;
+    document.getElementById("current_trains").innerHTML = "<b>" + y + " vehicles on map</b>" + stats;
 
     // Reset these
-    newMarkers = []; 
+    newMarkers = [];
     speeds = [];
     vehiclesPerLine = {};
 }
 
-    var styles = [
-  {
+var styles = [{
     "featureType": "administrative",
     "elementType": "labels.text.fill",
-    "stylers": [
-      {
+    "stylers": [{
         "color": "#444444"
-      },
-      {
+    }, {
         "gamma": "1"
-      }
-    ]
-  },
-  {
+    }]
+}, {
     "featureType": "landscape",
     "elementType": "all",
-    "stylers": [
-      {
+    "stylers": [{
         "color": "#f2f2f2"
-      }
-    ]
-  },
-  {
+    }]
+}, {
     "featureType": "landscape",
     "elementType": "labels.text",
-    "stylers": [
-      {
+    "stylers": [{
         "visibility": "simplified"
-      }
-    ]
-  },
-  {
+    }]
+}, {
     "featureType": "road",
     "elementType": "all",
-    "stylers": [
-      {
+    "stylers": [{
         "saturation": -100
-      },
-      {
+    }, {
         "lightness": 45
-      },
-      {
+    }, {
         "visibility": "simplified"
-      }
-    ]
-  },
-  {
+    }]
+}, {
     "featureType": "transit",
     "elementType": "all",
-    "stylers": [
-      {
+    "stylers": [{
         "visibility": "simplified"
-      }
-    ]
-  },
-  {
+    }]
+}, {
     "featureType": "transit",
     "elementType": "labels.text",
-    "stylers": [
-      {
+    "stylers": [{
         "visibility": "on"
-      }
-    ]
-  },
-  {
+    }]
+}, {
     "featureType": "water",
     "elementType": "all",
-    "stylers": [
-      {
+    "stylers": [{
         "color": "#b4d4e1"
-      }
-    ]
-  },
-    {
-      "featureType": "transit.line",
-      "elementType": "geometry",
-      "stylers": [
-        { "hue": "#ff0000" },
-        { "visibility": "on" },
-        { "lightness": "-70" }
-      ]
-    }
-];
+    }]
+}, {   
+    "featureType": "transit.line",
+       "elementType": "geometry",
+       "stylers": [    {
+        "hue": "#ff0000"
+    },      {
+        "visibility": "on"
+    },      {
+        "lightness": "-70"
+    }   ]  
+}];
